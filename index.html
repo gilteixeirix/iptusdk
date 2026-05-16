@@ -1,18 +1,229 @@
 <!DOCTYPE html>
-<html>
+<html lang="pt-BR">
 
 <head>
+
   <meta charset="UTF-8">
-  <title>IPTU Chain</title>
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <title>
+    IPTU Chain
+  </title>
+
+  <style>
+
+    *{
+      margin:0;
+      padding:0;
+      box-sizing:border-box;
+      font-family:Arial,sans-serif;
+    }
+
+    body{
+      background:#0f172a;
+      color:white;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      min-height:100vh;
+      padding:20px;
+    }
+
+    .container{
+      width:100%;
+      max-width:700px;
+      background:#1e293b;
+      padding:30px;
+      border-radius:20px;
+      box-shadow:0 0 30px rgba(0,0,0,.4);
+    }
+
+    h1{
+      text-align:center;
+      color:#38bdf8;
+      margin-bottom:10px;
+    }
+
+    p{
+      text-align:center;
+      margin-bottom:20px;
+      color:#cbd5e1;
+    }
+
+    .card{
+      background:#334155;
+      padding:15px;
+      border-radius:12px;
+      margin-top:20px;
+    }
+
+    input{
+      width:100%;
+      padding:12px;
+      border:none;
+      border-radius:10px;
+      margin-top:10px;
+      margin-bottom:10px;
+      background:#0f172a;
+      color:white;
+    }
+
+    button{
+      width:100%;
+      padding:14px;
+      border:none;
+      border-radius:12px;
+      cursor:pointer;
+      font-weight:bold;
+      margin-top:10px;
+    }
+
+    .connect-btn{
+      background:#38bdf8;
+      color:black;
+    }
+
+    .anchor-btn{
+      background:#22c55e;
+      color:white;
+    }
+
+    .audit-btn{
+      background:#f59e0b;
+      color:white;
+    }
+
+    small{
+      display:block;
+      margin-top:10px;
+      background:#0f172a;
+      padding:10px;
+      border-radius:10px;
+      word-break:break-all;
+    }
+
+    .success{
+      color:#22c55e;
+      margin-top:10px;
+    }
+
+    .error{
+      color:#ef4444;
+      margin-top:10px;
+    }
+
+    a{
+      color:#38bdf8;
+    }
+
+  </style>
+
 </head>
 
 <body>
 
-<button onclick="connectWallet()">
-Conectar Freighter
-</button>
+  <div class="container">
 
-<script type="module" src="./main.js"></script>
+    <h1>
+      IPTU Chain
+    </h1>
+
+    <p>
+      Auditoria Fiscal Blockchain Stellar
+    </p>
+
+    <button
+      class="connect-btn"
+      onclick="connectWallet()"
+    >
+      Conectar Freighter
+    </button>
+
+    <div class="card">
+
+      <strong>
+        Carteira
+      </strong>
+
+      <small id="walletAddress">
+        Não conectada
+      </small>
+
+    </div>
+
+    <div class="card">
+
+      <strong>
+        Matrícula
+      </strong>
+
+      <input
+        type="text"
+        id="matricula"
+        placeholder="IPTU-2026-0001"
+      >
+
+      <strong>
+        Valor IPTU
+      </strong>
+
+      <input
+        type="text"
+        id="valor"
+        placeholder="1500.00"
+      >
+
+      <button
+        class="anchor-btn"
+        onclick="anchorHash()"
+      >
+        Gerar SHA-256 + Ancorar
+      </button>
+
+      <div id="status"></div>
+
+    </div>
+
+    <div class="card">
+
+      <strong>
+        Auditoria
+      </strong>
+
+      <input
+        type="text"
+        id="consultaMatricula"
+        placeholder="Matrícula"
+      >
+
+      <input
+        type="text"
+        id="consultaValor"
+        placeholder="Valor Atual"
+      >
+
+      <button
+        class="audit-btn"
+        onclick="auditHash()"
+      >
+        Auditar
+      </button>
+
+      <div id="auditResult"></div>
+
+    </div>
+
+  </div>
+
+  <script
+    type="module"
+    src="./main.js"
+  ></script>
 
 </body>
+
 </html>
