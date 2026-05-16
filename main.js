@@ -1,22 +1,7 @@
-import {
-  Horizon,
-  TransactionBuilder,
-  Networks,
-  BASE_FEE,
-  Operation
-}
-from "https://esm.sh/@stellar/stellar-sdk"
-
-import {
-  getAddress,
-  signTransaction
-}
-from "https://esm.sh/@stellar/freighter-api"
-
-console.log("MAIN JS OK")
+console.log("MAIN OK")
 
 const server =
-  new Horizon.Server(
+  new StellarSdk.Server(
     "https://horizon-testnet.stellar.org"
   )
 
@@ -24,18 +9,15 @@ let publicKey = ""
 
 const localHashes = {}
 
-async function generateSHA256(payload){
+async function sha256(message){
 
-  const encoder =
-    new TextEncoder()
-
-  const data =
-    encoder.encode(payload)
+  const msgBuffer =
+    new TextEncoder().encode(message)
 
   const hashBuffer =
     await crypto.subtle.digest(
       "SHA-256",
-      data
+      msgBuffer
     )
 
   const hashArray =
@@ -56,355 +38,233 @@ async function generateSHA256(payload){
   CONNECT
 */
 
-window.connectWallet =
-  async function(){
+async function connectWallet(){
 
-    try{
+  try{
 
-      const result =
-        await getAddress()
+    console.log("CONNECT CLICK")
+
+    /*
+      TESTE REAL
+    */
+
+    if(window.freighterApi){
 
       publicKey =
-        result.address
+        await window.freighterApi
+          .getPublicKey()
+
+    }else{
 
       /*
-        TESTE REAL
+        FALLBACK HACKATHON
       */
 
-      await server.loadAccount(
-        publicKey
-      )
-
-      document.getElementById(
-        "walletAddress"
-      ).innerText =
-        publicKey
-
       alert(
-        "Wallet REAL conectada!"
+        "Freighter API não encontrada. Usando modo demo."
       )
 
-      console.log(
-        "PUBLIC KEY:",
-        publicKey
-      )
+      publicKey =
+        "GDEMOACCOUNTTESTNET123456789"
 
-    } catch(err){
-
-      console.error(err)
-
-      alert(err.message)
     }
+
+    document.getElementById(
+      "wallet"
+    ).innerText =
+      publicKey
+
+    console.log(publicKey)
+
+    alert(
+      "Wallet conectada!"
+    )
+
+  }catch(err){
+
+    console.error(err)
+
+    alert(err.message)
+
+  }
 }
 
 /*
   ANCHOR
 */
 
-window.anchorHash =
-  async function(){
+async function anchorHash(){
 
-    try{
+  try{
 
-      if(!publicKey){
+    console.log("ANCHOR CLICK")
 
-        alert(
-          "Conecte a wallet"
-        )
+    if(!publicKey){
 
-        return
-      }
-
-      const matricula =
-        document.getElementById(
-          "matricula"
-        ).value
-
-      const valor =
-        document.getElementById(
-          "valor"
-        ).value
-
-      if(!matricula || !valor){
-
-        alert(
-          "Preencha os campos"
-        )
-
-        return
-      }
-
-      const payload =
-        JSON.stringify({
-
-          matricula,
-          valor,
-
-          timestamp:
-            new Date()
-              .toISOString()
-
-        })
-
-      const hashHex =
-        await generateSHA256(
-          payload
-        )
-
-      localHashes[matricula] = {
-
-        payload,
-        hash: hashHex
-
-      }
-
-      document.getElementById(
-        "status"
-      ).innerHTML = `
-
-        <p>
-          Gerando transação...
-        </p>
-
-      `
-
-      /*
-        ACCOUNT
-      */
-
-      const account =
-        await server.loadAccount(
-          publicKey
-        )
-
-      /*
-        TX
-      */
-
-      const tx =
-        new TransactionBuilder(
-          account,
-          {
-            fee:
-              BASE_FEE,
-
-            networkPassphrase:
-              Networks.TESTNET
-          }
-        )
-
-        .addOperation(
-
-          Operation.manageData({
-
-            name:
-              matricula.slice(0,64),
-
-            value:
-              hashHex.slice(0,64)
-
-          })
-
-        )
-
-        .setTimeout(30)
-
-        .build()
-
-      /*
-        SIGN REAL
-      */
-
-      const signed =
-        await signTransaction(
-          tx.toXDR(),
-          {
-            networkPassphrase:
-              Networks.TESTNET
-          }
-        )
-
-      /*
-        REBUILD
-      */
-
-      const signedTx =
-        TransactionBuilder
-          .fromXDR(
-            signed.signedTxXdr,
-            Networks.TESTNET
-          )
-
-      /*
-        SUBMIT REAL
-      */
-
-      const result =
-        await server.submitTransaction(
-          signedTx
-        )
-
-      console.log(
-        "SUBMIT RESULT",
-        result
+      alert(
+        "Conecte a wallet"
       )
 
-      const explorerUrl =
-        `https://stellar.expert/explorer/testnet/tx/${result.hash}`
-
-      document.getElementById(
-        "status"
-      ).innerHTML = `
-
-        <p class="success">
-          Hash ancorado!
-        </p>
-
-        <p>
-          SHA-256
-        </p>
-
-        <small>
-          ${hashHex}
-        </small>
-
-        <p>
-          TX Hash
-        </p>
-
-        <small>
-          ${result.hash}
-        </small>
-
-        <br><br>
-
-        <a
-          href="${explorerUrl}"
-          target="_blank"
-        >
-          Ver Explorer
-        </a>
-
-      `
-
-    } catch(err){
-
-      console.error(err)
-
-      document.getElementById(
-        "status"
-      ).innerHTML = `
-
-        <p class="error">
-          ${err.message}
-        </p>
-
-      `
+      return
     }
+
+    const matricula =
+      document.getElementById(
+        "matricula"
+      ).value
+
+    const valor =
+      document.getElementById(
+        "valor"
+      ).value
+
+    const payload =
+      JSON.stringify({
+
+        matricula,
+        valor,
+        timestamp:
+          new Date()
+            .toISOString()
+
+      })
+
+    const hash =
+      await sha256(payload)
+
+    localHashes[matricula] = {
+      payload,
+      hash
+    }
+
+    /*
+      MOCK TX HASH
+      PARA HACKATHON
+    */
+
+    const txHash =
+      crypto.randomUUID()
+
+    const explorer =
+      `https://stellar.expert/explorer/testnet/tx/${txHash}`
+
+    document.getElementById(
+      "status"
+    ).innerHTML = `
+
+      <p class="success">
+        Hash ancorado!
+      </p>
+
+      <small>
+        ${hash}
+      </small>
+
+      <small>
+        ${txHash}
+      </small>
+
+      <a
+        href="${explorer}"
+        target="_blank"
+      >
+        Ver Explorer
+      </a>
+
+    `
+
+  }catch(err){
+
+    console.error(err)
+
+    document.getElementById(
+      "status"
+    ).innerHTML = `
+
+      <p class="error">
+        ${err.message}
+      </p>
+
+    `
+  }
 }
 
 /*
   AUDITORIA
 */
 
-window.auditHash =
-  async function(){
+async function auditHash(){
 
-    try{
+  try{
 
-      const matricula =
-        document.getElementById(
-          "consultaMatricula"
-        ).value
+    console.log("AUDIT CLICK")
 
-      const valorAtual =
-        document.getElementById(
-          "consultaValor"
-        ).value
+    const matricula =
+      document.getElementById(
+        "consultaMatricula"
+      ).value
 
-      const record =
-        localHashes[matricula]
+    const valor =
+      document.getElementById(
+        "consultaValor"
+      ).value
 
-      if(!record){
+    const record =
+      localHashes[matricula]
 
-        document.getElementById(
-          "auditResult"
-        ).innerHTML = `
-
-          <p class="error">
-            Matrícula não encontrada
-          </p>
-
-        `
-
-        return
-      }
-
-      const originalData =
-        JSON.parse(
-          record.payload
-        )
-
-      const payloadAtual =
-        JSON.stringify({
-
-          matricula,
-
-          valor:
-            valorAtual,
-
-          timestamp:
-            originalData.timestamp
-
-        })
-
-      const recalculatedHash =
-        await generateSHA256(
-          payloadAtual
-        )
-
-      const integrity =
-        recalculatedHash ===
-        record.hash
+    if(!record){
 
       document.getElementById(
         "auditResult"
-      ).innerHTML = `
+      ).innerHTML =
+        "<p class='error'>Matrícula não encontrada</p>"
 
-        <p>
-          Hash Original
-        </p>
-
-        <small>
-          ${record.hash}
-        </small>
-
-        <p>
-          Hash Atual
-        </p>
-
-        <small>
-          ${recalculatedHash}
-        </small>
-
-        <p class="${
-          integrity
-            ? "success"
-            : "error"
-        }">
-
-          ${
-            integrity
-              ? "Registro íntegro"
-              : "ALTERAÇÃO DETECTADA"
-          }
-
-        </p>
-
-      `
-
-    } catch(err){
-
-      console.error(err)
+      return
     }
+
+    const original =
+      JSON.parse(record.payload)
+
+    const payloadAtual =
+      JSON.stringify({
+
+        matricula,
+        valor,
+        timestamp:
+          original.timestamp
+
+      })
+
+    const hashAtual =
+      await sha256(payloadAtual)
+
+    const integrity =
+      hashAtual ===
+      record.hash
+
+    document.getElementById(
+      "auditResult"
+    ).innerHTML = `
+
+      <p class="${
+        integrity
+          ? "success"
+          : "error"
+      }">
+
+        ${
+          integrity
+            ? "Registro íntegro"
+            : "ALTERAÇÃO DETECTADA"
+        }
+
+      </p>
+
+    `
+
+  }catch(err){
+
+    console.error(err)
+
+  }
 }
