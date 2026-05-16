@@ -3,226 +3,174 @@
 
 <head>
 
-  <meta charset="UTF-8">
+<meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1.0"
+>
 
-  <title>
-    IPTU Chain
-  </title>
+<title>IPTU Chain</title>
 
-  <style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/stellar-sdk/10.4.1/stellar-sdk.min.js"></script>
 
-    *{
-      margin:0;
-      padding:0;
-      box-sizing:border-box;
-      font-family:Arial,sans-serif;
-    }
+<style>
 
-    body{
-      background:#0f172a;
-      color:white;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      min-height:100vh;
-      padding:20px;
-    }
+body{
+  background:#0f172a;
+  color:white;
+  font-family:Arial;
+  padding:20px;
+}
 
-    .container{
-      width:100%;
-      max-width:700px;
-      background:#1e293b;
-      padding:30px;
-      border-radius:20px;
-      box-shadow:0 0 30px rgba(0,0,0,.4);
-    }
+.container{
+  max-width:700px;
+  margin:auto;
+  background:#1e293b;
+  padding:30px;
+  border-radius:20px;
+}
 
-    h1{
-      text-align:center;
-      color:#38bdf8;
-      margin-bottom:10px;
-    }
+.card{
+  background:#334155;
+  padding:20px;
+  border-radius:15px;
+  margin-top:20px;
+}
 
-    p{
-      text-align:center;
-      margin-bottom:20px;
-      color:#cbd5e1;
-    }
+input{
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  margin-bottom:10px;
+  border:none;
+  border-radius:10px;
+  background:#0f172a;
+  color:white;
+}
 
-    .card{
-      background:#334155;
-      padding:15px;
-      border-radius:12px;
-      margin-top:20px;
-    }
+button{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:10px;
+  margin-top:10px;
+  cursor:pointer;
+  font-weight:bold;
+}
 
-    input{
-      width:100%;
-      padding:12px;
-      border:none;
-      border-radius:10px;
-      margin-top:10px;
-      margin-bottom:10px;
-      background:#0f172a;
-      color:white;
-    }
+.connect{
+  background:#38bdf8;
+}
 
-    button{
-      width:100%;
-      padding:14px;
-      border:none;
-      border-radius:12px;
-      cursor:pointer;
-      font-weight:bold;
-      margin-top:10px;
-    }
+.anchor{
+  background:#22c55e;
+  color:white;
+}
 
-    .connect-btn{
-      background:#38bdf8;
-      color:black;
-    }
+.audit{
+  background:#f59e0b;
+  color:white;
+}
 
-    .anchor-btn{
-      background:#22c55e;
-      color:white;
-    }
+small{
+  display:block;
+  margin-top:10px;
+  word-break:break-all;
+}
 
-    .audit-btn{
-      background:#f59e0b;
-      color:white;
-    }
+.success{
+  color:#22c55e;
+}
 
-    small{
-      display:block;
-      margin-top:10px;
-      background:#0f172a;
-      padding:10px;
-      border-radius:10px;
-      word-break:break-all;
-    }
+.error{
+  color:#ef4444;
+}
 
-    .success{
-      color:#22c55e;
-      margin-top:10px;
-    }
+a{
+  color:#38bdf8;
+}
 
-    .error{
-      color:#ef4444;
-      margin-top:10px;
-    }
-
-    a{
-      color:#38bdf8;
-    }
-
-  </style>
+</style>
 
 </head>
 
 <body>
 
-  <div class="container">
+<div class="container">
 
-    <h1>
-      IPTU Chain
-    </h1>
+<h1>IPTU Chain</h1>
 
-    <p>
-      Auditoria Fiscal Blockchain Stellar
-    </p>
+<p>
+Auditoria Fiscal Blockchain Stellar
+</p>
 
-    <button
-      class="connect-btn"
-      onclick="connectWallet()"
-    >
-      Conectar Freighter
-    </button>
+<button
+  class="connect"
+  onclick="connectWallet()"
+>
+Conectar Freighter
+</button>
 
-    <div class="card">
+<div class="card">
 
-      <strong>
-        Carteira
-      </strong>
+<strong>Carteira</strong>
 
-      <small id="walletAddress">
-        Não conectada
-      </small>
+<small id="wallet">
+Não conectada
+</small>
 
-    </div>
+</div>
 
-    <div class="card">
+<div class="card">
 
-      <strong>
-        Matrícula
-      </strong>
+<input
+  id="matricula"
+  placeholder="Matrícula IPTU"
+>
 
-      <input
-        type="text"
-        id="matricula"
-        placeholder="IPTU-2026-0001"
-      >
+<input
+  id="valor"
+  placeholder="Valor IPTU"
+>
 
-      <strong>
-        Valor IPTU
-      </strong>
+<button
+  class="anchor"
+  onclick="anchorHash()"
+>
+Gerar SHA-256 + Ancorar
+</button>
 
-      <input
-        type="text"
-        id="valor"
-        placeholder="1500.00"
-      >
+<div id="status"></div>
 
-      <button
-        class="anchor-btn"
-        onclick="anchorHash()"
-      >
-        Gerar SHA-256 + Ancorar
-      </button>
+</div>
 
-      <div id="status"></div>
+<div class="card">
 
-    </div>
+<input
+  id="consultaMatricula"
+  placeholder="Matrícula"
+>
 
-    <div class="card">
+<input
+  id="consultaValor"
+  placeholder="Valor Atual"
+>
 
-      <strong>
-        Auditoria
-      </strong>
+<button
+  class="audit"
+  onclick="auditHash()"
+>
+Auditar
+</button>
 
-      <input
-        type="text"
-        id="consultaMatricula"
-        placeholder="Matrícula"
-      >
+<div id="auditResult"></div>
 
-      <input
-        type="text"
-        id="consultaValor"
-        placeholder="Valor Atual"
-      >
+</div>
 
-      <button
-        class="audit-btn"
-        onclick="auditHash()"
-      >
-        Auditar
-      </button>
+</div>
 
-      <div id="auditResult"></div>
-
-    </div>
-
-  </div>
-
-  <script
-    type="module"
-    src="./main.js"
-  ></script>
+<script src="./main.js"></script>
 
 </body>
 
